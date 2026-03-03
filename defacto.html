@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог DeFacto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="home-button">
+            <img src="home.png" alt="Домой" />
+        </a>
+        <h1>Каталог DeFacto</h1>
+    </header>
+    <nav id="manufacturers">
+        <a href="defacto.html"><img src="DeFacto.png" alt="DeFacto"></a>
+        <a href="loft.html"><img src="Loft.png" alt="Loft"></a>
+        <a href="cart.html" class="cart-link">Корзина</a>
+    </nav>
+    <!-- selectors copied from main page -->
+    <section id="selectors">
+        <label for="main-select">Раздел:</label>
+        <select id="main-select"></select>
+        <label for="sub-select">Категория:</label>
+        <select id="sub-select"></select>
+    </section>
+    <div id="product-list"></div>
+
+    <!-- modal for image zoom -->
+    <div id="modal" class="hidden">
+        <span id="modal-close">&times;</span>
+        <img id="modal-img" src="" alt="">
+    </div>
+    <script src="script.js"></script>
+    <script>
+    // load DeFacto data immediately (script.js defines helper functions already)
+    fetch('DeFacto.json')
+      .then(r=>r.json())
+      .then(products=>{
+         console.log('defacto fetched', products && products.length);
+         try {
+           currentStructure = buildStructure(products);
+           populateMainSelect();
+         } catch(err) {
+           console.error('error building or populating', err, err.stack);
+         }
+      })
+      .catch(e=>console.error('fetch defacto',e));
+    </script>
+</body>
+</html>
