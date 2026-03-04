@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "price": "19,8 USD",
+    "price": "20,79 $",
     "image": "https://image.defacto.com.tr/product/25AU/A2451A5_25AU_BG321_01_01.jpg",
     "name": "A2451A5 VIZON",
     "category": "Mont",
@@ -12,7 +12,7 @@
   },
   {
     "id": 2,
-    "price": "6,6 USD",
+    "price": "6,93 $",
     "image": "https://image.defacto.com.tr/product/25AU/A3422AX_25AU_ER105_01_01.jpg",
     "name": "A3422AX ECRU",
     "category": "Athlete",
@@ -23,7 +23,7 @@
   },
   {
     "id": 3,
-    "price": "4,62 USD",
+    "price": "4,85 $",
     "image": "https://image.defacto.com.tr/product/25AU/A8859AX_25AU_BK81_01_02.jpg",
     "name": "A8859AX BLACK",
     "category": "Athlete",
@@ -34,7 +34,7 @@
   },
   {
     "id": 4,
-    "price": "4,62 USD",
+    "price": "4,85 $",
     "image": "https://image.defacto.com.tr/product/25AU/A8859AX_25AU_KH459_01_02.jpg",
     "name": "A8859AX Khaki",
     "category": "Athlete",
@@ -45,7 +45,7 @@
   },
   {
     "id": 5,
-    "price": "5,28 USD",
+    "price": "5,54 $",
     "image": "https://image.defacto.com.tr/product/25AU/B0776A8_25AU_WT34_01_02.jpg",
     "name": "B0776A8 WHITE",
     "category": "Short Sleeve Shirt",
