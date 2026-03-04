@@ -119,14 +119,20 @@ const rawData = XLSX.utils.sheet_to_json(sheet);
 
 // 3. Преобразуем данные под твои требования
 const finalJson = rawData.map(item => {
+    // Сначала определяем formattedPrice внутри цикла
+    // Number(item.Price).toFixed(2) округлит до 4.86
+    const formattedPrice = item.Price ? Number(item.Price).toFixed(2) : "0.00";
+
     return {
-        id: item.StyleCode, // Используем StyleCode как ID
-        name: item.StyleCode, // Пункт 2: name как StyleCode
-        price: `${item.Price} $`, // Пункт 1: цена со знаком $
-        main: main_translate[item.SubDivision] || item.SubDivision, // Пункт 3: перевод SubDivision
-        category_en: item.ClassName,
-        category_ru: category_translate[item.ClassName] || item.ClassName, // Пункт 4: перевод подкатегории
-        image: item.WebImage // Пункт 5: картинка
+        id: String(item.StyleCode), // Приводим к строке для надежности
+        name: String(item.StyleCode), 
+        price: `${formattedPrice} $`,
+        main: main_translate[item.SubDivision] || item.SubDivision,
+        category: category_translate[item.ClassName] || item.ClassName,
+        image: item.WebImage,
+        composition: item.Composition,
+        SizeInLot: item.SizeInLot,
+        LotInQuantity: item.LotInQuantity
     };
 });
 
