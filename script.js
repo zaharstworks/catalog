@@ -1,7 +1,6 @@
 // configuration
 const manufacturers = [
   { name: 'DeFacto', logo: 'DeFacto.png', data: 'DeFacto.json' },
-  { name: 'Loft',    logo: 'Loft.png',    data: 'Loft.json'    },
   // добавляйте другие производители в том же формате
 ];
 
@@ -122,28 +121,6 @@ function updateSubSelect(main) {
 }
 
 
-/* attempt to resolve a Loft page URL to the actual image file inside it */
-function resolveLoftImage(pageUrl) {
-  // fetch text and parse first <img> tag inside body
-  return fetch(pageUrl)
-    .then(r => r.text())
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const img = doc.querySelector('img');
-      if (img) {
-        let src = img.getAttribute('src');
-        if (src && !src.startsWith('http')) {
-          // make absolute
-          const base = new URL(pageUrl).origin;
-          src = base + src;
-        }
-        return src;
-      }
-      return null;
-    })
-    .catch(() => null);
-}
 
 function showProducts(products) {
   if (!products || !products.length) {
@@ -179,18 +156,6 @@ function showProducts(products) {
     list.appendChild(div);
   });
   hookProductImages();
-  // after DOM updated, attempt to fetch real images for loft items
-  document.querySelectorAll('#product-list .product img').forEach(img => {
-    const orig = img.getAttribute('src');
-    if (orig && orig.toLowerCase().includes('productimage.loft.com.tr')) {
-      resolveLoftImage(orig).then(real => {
-        if (real) {
-          img.src = real;
-          img.dataset.large = real;
-        }
-      });
-    }
-  });
 }
 
 

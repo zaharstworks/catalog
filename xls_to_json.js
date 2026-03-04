@@ -11,12 +11,6 @@ function inferMainFromRow(r) {
   return sub || '';
 }
 
-function inferMainLoft(r) {
-  const g = String(r.Gender || r.__EMPTY_6 || '').toUpperCase();
-  if (g.startsWith('M')) return 'мужское';
-  if (g.startsWith('F')) return 'женское';
-  return '';
-}
 
 // Generic builder for each excel file
 function buildJsonFromExcel(file) {
@@ -52,62 +46,18 @@ function buildJsonFromExcel(file) {
       obj.Composition = r.Composition || '';
       obj.SizeInLot = r.SizeInLot || '';
       obj.LotInQuantity = r.LotInQuantity || '';
-    } else if (/loft/i.test(file)) {
-      obj.price = r['Unit Price'] || r.__EMPTY_15 || '';
-      // original page link; we will later transform to direct jpeg if possible
-      let link = r.Link || r.__EMPTY_1 || '';
-      // try to convert pattern /ViewImage/Index/LF12345 -> /jpg/12345.jpg
-      const m = link.match(/^(https?:\/\/[^\/]+)\/ViewImage\/Index\/[A-Za-z]*?(\d+)$/);
-      if (m) {
-        link = m[1] + '/jpg/' + m[2] + '.jpg';
-      }
-      obj.image = link;
-      obj.name = ((r['Model Code'] || r.__EMPTY) + ' ' + (r.Colour || r.__EMPTY_8)).trim();
-      obj.category = r.Category || r.__EMPTY_3 || '';
-      obj.main = inferMainLoft(r);
-      obj.Composition = '';
-      obj.SizeInLot = r.Size || r.__EMPTY_11 || '';
-      obj.LotInQuantity = r['Assortment Qty'] || r.__EMPTY_14 || '';
     }
     output.push(obj);
   });
   return output;
 }
 
-// helper: given a Loft page URL, fetch and extract first <img> src
-async function fetchLoftPicture(pageUrl) {
-  try {
-    const fetch = require('node-fetch');
-    const resp = await fetch(pageUrl);
-    const text = await resp.text();
-    const match = text.match(/<img[^>]+src=["']([^"']+)["']/i);
-    if (match) {
-      let src = match[1];
-      if (!src.startsWith('http')) {
-        src = new URL(pageUrl).origin + src;
-      }
-      return src;
-    }
-  } catch (e) {
-    // ignore
-  }
-  return null;
-}
 
-// process both suppliers if spreadsheets exist
+// process supplier spreadsheet if it exists
 (async () => {
-  for (const xlsxFile of ['DeFacto.xlsx', 'Loft.xlsx']) {
-    if (!fs.existsSync(xlsxFile)) continue;
-    let arr = buildJsonFromExcel(xlsxFile);
-    if (/loft/i.test(xlsxFile)) {
-      console.log('resolving loft image URLs...');
-      for (const obj of arr) {
-        if (obj.image && obj.image.toLowerCase().includes('productimage.loft.com.tr')) {
-          const real = await fetchLoftPicture(obj.image);
-          if (real) obj.image = real;
-        }
-      }
-    }
+  const xlsxFile = 'DeFacto.xlsx';
+  if (fs.existsSync(xlsxFile)) {
+    const arr = buildJsonFromExcel(xlsxFile);
     const jsonName = xlsxFile.replace(/\.xlsx$/i, '.json');
     fs.writeFileSync(jsonName, JSON.stringify(arr, null, 2), 'utf8');
     console.log('created', jsonName, 'with', arr.length, 'items');
