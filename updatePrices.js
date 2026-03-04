@@ -1,19 +1,136 @@
-const fs=require('fs');
-console.log('script started');
-const data=JSON.parse(fs.readFileSync('DeFacto.json','utf8'));
-let changed=0;
-const out=data.map(item=>{
-  if(item.price && typeof item.price==='string'){
-    const m=item.price.match(/([0-9]+[.,]?[0-9]*)/);
-    if(m){
-      let num=parseFloat(m[1].replace(',','.'));
-      num=num*1.05;
-      let s=num.toFixed(2).replace('.',',');
-      item.price = s + ' $';
-      changed++;
-    }
-  }
-  return item;
+const fs = require('fs');
+const XLSX = require('xlsx');
+
+// 1. Словари перевода
+const category_translate = {
+    "Knitted Dress": "трикотажное платье",
+    "Woven Dress": "тканевое платье",
+    "Knitted Skirt": "трикотажная юбка",
+    "Short Sleeve T-Shirt": "футболка с коротким рукавом",
+    "Trousers": "брюки",
+    "Long Sleeve Shirt": "рубашка с длинным рукавом",
+    "Pullover": "пуловер",
+    "Short Sleeve Blouse": "блузка с коротким рукавом",
+    "Woven Set": "тканевый комплект",
+    "Woven Skirt": "тканевая юбка",
+    "Jump Suit": "комбинезон",
+    "Long Sleeve T-Shirt": "лонгслив",
+    "Long Sleeve Blouse": "блузка с длинным рукавом",
+    "Knitted Set": "трикотажный комплект",
+    "Sweat Shirt": "свитшот",
+    "Cardigan": "кардиган",
+    "Short": "шорты",
+    "Overalls": "комбинезон",
+    "Dress": "платье",
+    "Short Sleeve Polo T-Shirt": "поло с коротким рукавом",
+    "Short Sleeve Shirt": "рубашка с коротким рукавом",
+    "Tricot Set": "трикотажный комплект",
+    "Knitted Pyjamas": "трикотажная пижама",
+    "Mont": "куртка",
+    "Athlete": "майка",
+    "Vest": "жилет",
+    "PU Mont": "куртка из экокожи",
+    "Knitted Bottoms": "трикотажный низ",
+    "Woven Bottoms": "тканевый низ",
+    "Knitted Tops": "трикотажный верх",
+    "Long Sleeve Polo T-Shirt": "поло с длинным рукавом",
+    "Jacket": "жакет",
+    "Socks": "носки",
+    "Low Cut Socks": "короткие носки",
+    "Belt": "ремень",
+    "Water Bottle": "бутылка для воды",
+    "Perfume Bottle Type": "флакон для парфюма",
+    "Bag": "сумка",
+    "Wallet": "кошелёк",
+    "Baggage": "багаж",
+    "Card Holder": "картхолдер",
+    "BackPack": "рюкзак",
+    "Personal Care": "товары личной гигиены",
+    "Scarf & Set": "шарф и комплект",
+    "Hat": "шапка",
+    "Child Suspenders": "детские подтяжки",
+    "Shawl": "шаль",
+    "Neck Pillow": "подушка для шеи",
+    "Mini Bag": "мини-сумка",
+    "Sunglasses": "солнцезащитные очки",
+    "Skin Care": "уход за кожей",
+    "Kimono": "кимоно",
+    "Beret": "берет",
+    "Gloves": "перчатки",
+    "Earmuff": "наушники (утеплённые)",
+    "Knitted Boxer": "трикотажные боксеры",
+    "Bodysuit": "боди",
+    "Package Slip": "комбинация",
+    "Bra": "бюстгальтер",
+    "Robe": "халат",
+    "Slip": "комбинация",
+    "Reading Glasses": "очки для чтения",
+    "Blazer": "блейзер",
+    "Short Sleeve Knitted Dress": "трикотажное платье с коротким рукавом",
+    "Short Sleeve Woven Dress": "тканевое платье с коротким рукавом",
+    "Sleeveless Blouse": "блузка без рукавов",
+    "Skirt": "юбка",
+    "Capri": "капри",
+    "Loungewear": "домашняя одежда",
+    "Roller": "роллер",
+    "Necklace": "ожерелье",
+    "Hair Clip": "заколка для волос",
+    "Long Sleeve Body": "боди с длинным рукавом",
+    "Long Sleeve Knitted Dress": "трикотажное платье с длинным рукавом",
+    "Leggings": "леггинсы",
+    "Hair Acc.": "аксессуары для волос",
+    "Keychains": "брелоки",
+    "Earring": "серьги",
+    "Bracelet": "браслет",
+    "Acc-Set": "набор аксессуаров",
+    "Skort": "юбка-шорты",
+    "Ring": "кольцо",
+    "Süveter": "свитер",
+    "Long Sleeve Tunic": "туника с длинным рукавом",
+    "Tunic": "туника",
+    "Long Sleeve Woven Dress": "тканевое платье с длинным рукавом",
+    "Short Sleeve Tunic": "туника с коротким рукавом",
+    "Sweat Tunic": "туника-свитшот",
+    "Ski Wear": "лыжная одежда",
+    "Rain Coat": "дождевик",
+    "Jogger": "джогеры",
+    "Coat/Parka": "пальто/парка",
+    "Cachet": "пальто из драпа",
+    "Shirt": "рубашка",
+    "Trenchcoat": "тренч",
+    "Raincoat": "плащ-дождевик",
+    "Set": "комплект",
+    "Overshirt": "рубашка-овер"
+};
+
+const main_translate = {
+    "Man": "Мужчины",
+    "Woman": "Женщины",
+    "Boy": "Мальчики",
+    "Girl": "Девочки",
+    "BabyBoy": "Малыши-мальчики",
+    "BabyGirl": "Малыши-девочки"
+};
+
+// 2. Читаем файл DeFacto.xlsx
+const workbook = XLSX.readFile('DeFacto.xlsx');
+const sheet = workbook.Sheets[workbook.SheetNames[0]];
+const rawData = XLSX.utils.sheet_to_json(sheet);
+
+// 3. Преобразуем данные под твои требования
+const finalJson = rawData.map(item => {
+    return {
+        id: item.StyleCode, // Используем StyleCode как ID
+        name: item.StyleCode, // Пункт 2: name как StyleCode
+        price: `${item.Price} $`, // Пункт 1: цена со знаком $
+        main: main_translate[item.SubDivision] || item.SubDivision, // Пункт 3: перевод SubDivision
+        category_en: item.ClassName,
+        category_ru: category_translate[item.ClassName] || item.ClassName, // Пункт 4: перевод подкатегории
+        image: item.WebImage // Пункт 5: картинка
+    };
 });
-fs.writeFileSync('DeFacto.json', JSON.stringify(out,null,2),'utf8');
-console.log('processed',changed,'items');
+
+// 4. Записываем в DeFacto.json
+fs.writeFileSync('DeFacto.json', JSON.stringify(finalJson, null, 2), 'utf-8');
+
+console.log('✅ Файл DeFacto.json успешно создан!');
