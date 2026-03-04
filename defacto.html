@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог DeFacto</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,39 +13,54 @@
         </a>
         <h1>Каталог DeFacto</h1>
     </header>
+
     <nav id="manufacturers">
         <a href="defacto.html"><img src="DeFacto.png" alt="DeFacto"></a>
         <a href="cart.html" class="cart-link">Корзина</a> 
     </nav>
-    <!-- selectors copied from main page -->
+
     <section id="selectors">
-        <label for="main-select">Раздел:</label>
-        <select id="main-select"></select>
-        <label for="sub-select">Категория:</label>
-        <select id="sub-select"></select>
+        <div class="filter-group">
+            <label for="main-select">Раздел:</label>
+            <select id="main-select"></select>
+        </div>
+        <div class="filter-group">
+            <label for="sub-select">Категория:</label>
+            <select id="sub-select"></select>
+        </div>
     </section>
+
     <div id="product-list"></div>
 
-    <!-- modal for image zoom -->
     <div id="modal" class="hidden">
         <span id="modal-close">&times;</span>
         <img id="modal-img" src="" alt="">
     </div>
+
     <script src="script.js"></script>
     <script>
-    // load DeFacto data immediately (script.js defines helper functions already)
+    // Загружаем обновленный JSON
     fetch('DeFacto.json')
-      .then(r=>r.json())
-      .then(products=>{
-         console.log('defacto fetched', products && products.length);
+      .then(r => r.json())
+      .then(products => {
+         console.log('Данные загружены:', products.length, 'товаров');
+         
+         // ВАЖНО: Если категории пустые, значит в script.js 
+         // нужно проверить, что функции используют поле "category", а не "category_ru"
          try {
-           currentStructure = buildStructure(products);
-           populateMainSelect();
+            if (typeof buildStructure === "function") {
+                currentStructure = buildStructure(products);
+                populateMainSelect();
+                // Первичная отрисовка всех товаров (если есть такая функция)
+                if (typeof renderProducts === "function") {
+                    renderProducts(products);
+                }
+            }
          } catch(err) {
-           console.error('error building or populating', err, err.stack);
+            console.error('Ошибка инициализации каталога:', err);
          }
       })
-      .catch(e=>console.error('fetch defacto',e));
+      .catch(e => console.error('Ошибка загрузки DeFacto.json:', e));
     </script>
 </body>
 </html>
