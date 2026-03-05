@@ -188,3 +188,47 @@ header h1 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.header-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.cart-button {
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.cart-button:hover {
+    transform: scale(1.05);
+}
+
+#cart-count {
+    background: white;
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+/* Стили для кнопки "В корзину" в карточке */
+.add-to-cart-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: auto; /* Прижимает кнопку к низу карточки */
+}

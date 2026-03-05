@@ -2,22 +2,70 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Корзина</title>
+    <title>Корзина — DOM OPT PMR</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .cart-table { width: 100%; border-collapse: collapse; background: white; margin-bottom: 20px; }
+        .cart-table th, .cart-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .cart-table th { background: #f8f8f8; }
+        .cart-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .qty-btn { padding: 5px 10px; cursor: pointer; }
+        .order-form { display: grid; gap: 10px; max-width: 400px; margin-top: 20px; }
+        .order-form input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .btn-order { background: #28a745; color: white; padding: 15px; border: none; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="home-button">
-            <img src="home.png" alt="Домой" />
+            <img src="home-logo.png" alt="Домой" />
         </a>
         <h1>Корзина</h1>
     </header>
-    <nav id="manufacturers">
-        <a href="defacto.html"><img src="DeFacto.png" alt="DeFacto"></a>
-        <a href="cart.html" class="cart-link">Корзина</a>
-    </nav>
-    <main>
-        <p>Здесь будет содержимое вашей корзины. Пока что это просто заглушка.</p>
+
+    <main style="padding: 20px;">
+        <div id="cart-container">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Фото</th>
+                        <th>Товар</th>
+                        <th>Размеры</th>
+                        <th>В лоте</th> <th>Кол-во лотов</th>
+                        <th>Цена лота</th>
+                        <th>Итого</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cart-items"></tbody>
+            </table>
+            <h3>Итого: <span id="total-price">0</span> $</h3>
+
+            <div class="order-form">
+                <input type="text" id="order-name" placeholder="Имя" required>
+                <input type="tel" id="order-phone" placeholder="Телефон" required>
+                <input type="email" id="order-email" placeholder="Email (опционально)">
+                <button class="btn-order" onclick="sendOrder()">ОСТАВИТЬ ЗАЯВКУ</button>
+            </div>
+            <button onclick="clearCart()" style="margin-top: 20px; background: none; border: none; color: red; cursor: pointer;">Очистить корзину</button>
+        </div>
+
+        <div id="empty-msg" style="display:none; text-align:center; padding: 50px;">
+    <h2 style="margin-bottom: 20px;">В корзине пока пусто</h2>
+    <div style="display: flex; justify-content: center;">
+        <a href="index.html" class="cart-button" style="text-decoration: none;">
+             ← Вернуться к покупкам
+        </a>
+    </div>
+</div>
     </main>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("vcgHNJPco0UB0zbZr"); 
+       })();
+    </script>
+    <script src="cart.js"></script>
 </body>
 </html>
